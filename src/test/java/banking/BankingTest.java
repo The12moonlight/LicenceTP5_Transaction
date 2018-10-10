@@ -61,6 +61,67 @@ public class BankingTest {
 		assertEquals("Balance incorrecte !", before1 + amount, myDAO.balanceForCustomer(toCustomer), 0.001f);				
 	}
 	
+        @Test
+        public void debAccountNegat() throws Exception {
+            float amount = 150.0f;
+            int fromCustomer = 0;
+            int toCustomer = 1;
+            float before0 = myDAO.balanceForCustomer(fromCustomer);
+	    float before1 = myDAO.balanceForCustomer(toCustomer);
+            // Le montant est supérieur a la balance du compte 1
+            try {
+                myDAO.bankTransferTransaction(fromCustomer, toCustomer, amount);
+                // Cette requete ne marche pas donc on va dans le catch
+            } catch (Exception e) {
+                // On passe par ici, car il y a violation d'integrité
+		System.err.println("Erreur balance negatif => constrainte d'intergrite");
+                assertEquals("La balance n'a pas changé", before0, myDAO.balanceForCustomer(fromCustomer), 0.001f);
+		assertEquals("La balance n'a pas changé !", before1, myDAO.balanceForCustomer(toCustomer), 0.001f);	
+            }
+        }
+            
+        @Test
+        public void debAccountNotExist() throws Exception {
+            float amount = 10.0f;
+            int fromCustomer = 2; // Compte inexistant
+            int toCustomer = 1; 
+            float before = myDAO.balanceForCustomer(1);
+            try {
+               myDAO.bankTransferTransaction(fromCustomer, toCustomer, amount);
+            } catch (Exception e) {
+                // On doit passe par ici, car il y a violation d'integrité
+                System.err.println("Erreur compte n'existe pas => constrainte d'intergrite");
+                assertEquals("La balance n'a pas changé", before, myDAO.balanceForCustomer(fromCustomer), 0.001f);
+            }
+        }
+        
+        @Test
+        public void credAccountNotExist() throws Exception {
+            float amount = 10.0f;
+            int fromCustomer = 0; 
+            int toCustomer = 2; // Compte inexistant
+            float before = myDAO.balanceForCustomer(0);
+            try {
+               myDAO.bankTransferTransaction(fromCustomer, toCustomer, amount);
+            } catch (Exception e) {
+                // On doit passe par ici, car il y a violation d'integrité
+                System.err.println("Erreur compte n'existe pas => constrainte d'intergrite");
+                assertEquals("La balance n'a pas changé", before, myDAO.balanceForCustomer(fromCustomer), 0.001f);
+            }
+        }
+        
+        @Test
+        public void accountNotExist() throws Exception {
+            float amount = 10.0f;
+            int fromCustomer = 2; // Compte inexistant
+            int toCustomer = 3; 
+            try {
+               myDAO.bankTransferTransaction(fromCustomer, toCustomer, amount);
+            } catch (Exception e) {
+                // On doit passe par ici, car il y a violation d'integrité
+                System.err.println("Erreur compte n'existe pas => constrainte d'intergrite");
+            }
+        }
 
 	public static DataSource getDataSource() throws SQLException {
 		org.hsqldb.jdbc.JDBCDataSource ds = new org.hsqldb.jdbc.JDBCDataSource();

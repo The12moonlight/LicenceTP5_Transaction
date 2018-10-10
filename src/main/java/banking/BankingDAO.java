@@ -67,7 +67,7 @@ public class BankingDAO {
 				myConnection.commit();
 			} catch (Exception ex) {
 				myConnection.rollback(); // On annule la transaction
-				throw ex;       
+				throw ex;   
 			} finally {
 				 // On revient au mode de fonctionnement sans transaction
 				myConnection.setAutoCommit(true);				
